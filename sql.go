@@ -14,6 +14,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
+const (
+	MySQL      = "mysql"
+	Postgresql = "postgres"
+)
+
 var (
 	MaxIdleConns = 50
 	MaxOpenConns = 200
@@ -56,15 +61,16 @@ func newEngine(db string) func() (interface{}, error) {
 			driver := d.GetDriver()
 			var driverDSN string
 			switch driver {
-			case "mysql":
+			case MySQL:
 				driverDSN = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8", d.GetUser(), d.GetPwd(), d.GetHost(), d.GetPort(), d.GetDatabase())
 				break
-			case "postgres":
+			case Postgresql:
 				driverDSN = fmt.Sprintf("user=%s password=%s port=%s dbname=%s host=%s sslmode=disable", d.GetUser(), d.GetPwd(), d.GetPort(), d.GetDatabase(), d.GetHost())
 				break
 			default:
 				return nil, errDriver
 			}
+
 			eng, err = xorm.NewEngine(driver, driverDSN)
 			if err == nil {
 				sqlLogger := xorm.NewSimpleLogger(logger)
